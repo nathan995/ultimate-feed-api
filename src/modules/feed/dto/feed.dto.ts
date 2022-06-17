@@ -4,16 +4,18 @@ import { FeedEntity } from '../feed.entity';
 
 export class FeedDto extends AbstractDto {
     @ApiProperty()
-    actor: string;
+    user_id: string;
+
     @ApiProperty()
-    time: Date;
+    foreign_ids: string[];
+
     @ApiProperty()
-    activity_ids: string[];
+    seen_foreign_ids: string[];
 
     constructor(feed: FeedEntity) {
         super(feed);
-        this.actor = feed.actor;
-        this.time = feed.time;
-        this.activity_ids = feed.activity_ids;
+        this.user_id = feed.user_id;
+        this.foreign_ids = feed.foreign_ids;
+        this.seen_foreign_ids = feed.seen_foreign_ids;
     }
 }

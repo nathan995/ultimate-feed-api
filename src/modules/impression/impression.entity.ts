@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity, IAbstractEntity } from 'common/abstract.entity';
 import { UseDto } from 'decorators';
 import { ImpressionDto } from './dto/impression.dto';
@@ -27,5 +27,6 @@ export class ImpressionEntity
         () => ActivityEntity,
         (activity: ActivityEntity) => activity.impressions,
     )
+    @JoinColumn({ name: 'activity_id', referencedColumnName: 'foreign_id' })
     public activity?: ActivityEntity;
-}
+} // END ImpressionEntity

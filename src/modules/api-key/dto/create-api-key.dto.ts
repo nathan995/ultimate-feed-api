@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 
 import { Trim } from 'decorators/transform.decorators';
 
-export class CreateFeedDto {
+export class CreateApiKeyDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
     @Trim()
-    readonly user_id: string;
+    readonly name: string;
 }

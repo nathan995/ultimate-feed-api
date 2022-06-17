@@ -2,14 +2,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
     IsArray,
     IsDateString,
-    isNotEmpty,
     IsNotEmpty,
+    IsNumber,
     IsOptional,
     IsString,
+    Max,
+    Min,
 } from 'class-validator';
 
 import { Trim } from 'decorators/transform.decorators';
-import { each } from 'lodash';
 
 export class CreateActivityDto {
     @ApiProperty()
@@ -28,6 +29,13 @@ export class CreateActivityDto {
     @IsNotEmpty()
     @Trim()
     foreign_id: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @Min(-1)
+    @Max(1)
+    @IsNumber()
+    score: number;
 
     @ApiPropertyOptional()
     @IsOptional()

@@ -6,5 +6,5 @@ export class AddToFeedDto {
     @IsArray()
     @IsString({ each: true })
     @IsNotEmpty({ each: true })
-    activity_ids: string[];
+    foreign_ids: string[];
 }

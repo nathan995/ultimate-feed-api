@@ -12,28 +12,20 @@ import { FeedDto } from './dto/feed.dto';
 import { ActivityEntity } from 'modules/activity/activity.entity';
 
 export interface IFeedEntity extends IAbstractEntity<FeedDto> {
-    actor: string;
-    time: Date;
-    activity_ids: string[];
+    user_id: string;
+    foreign_ids: string[];
+    seen_foreign_ids: string[];
 }
 
 @Entity({ name: 'feed' })
 @UseDto(FeedDto)
 export class FeedEntity extends AbstractEntity<FeedDto> implements IFeedEntity {
     @Column()
-    actor: string;
+    user_id: string;
 
     @Column('text', { array: true, default: [] })
-    // @RelationId((feed: FeedEntity) => feed.activities)
-    activity_ids: string[];
+    foreign_ids: string[];
 
-    @Column()
-    time: Date;
-
-    @ManyToMany(
-        () => ActivityEntity,
-        (activity: ActivityEntity) => activity.feeds,
-    )
-    @JoinTable()
-    public activities?: ActivityEntity[];
+    @Column('text', { array: true, default: [] })
+    seen_foreign_ids: string[];
 }

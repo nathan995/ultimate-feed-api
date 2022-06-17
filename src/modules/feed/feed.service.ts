@@ -9,6 +9,7 @@ import { ActivityRepository } from 'modules/activity/activity.repository';
 import { In } from 'typeorm';
 import { Auth } from 'decorators';
 import { RoleType } from 'constants/index';
+import { includes } from 'lodash';
 
 @Injectable()
 export class FeedService {
@@ -17,7 +18,7 @@ export class FeedService {
         private activityRepository: ActivityRepository,
     ) {}
 
-    @Auth([RoleType.USER])
+    //@Auth([RoleType.USER])
     @Transactional()
     async create(createFeedDto: CreateFeedDto): Promise<FeedEntity> {
         const feed = this.feedRepository.create(createFeedDto);
@@ -34,49 +35,64 @@ export class FeedService {
     //     return feeds;
     // }
 
-    @Auth([RoleType.USER])
-    async findOne(userId: string, length: number) {
+    //@Auth([RoleType.USER])
+    async findOne(userId: string, limit: number) {
+        // let feed = await this.feedRepository.findOne({
+        //     where: { user_id: userId },
+        // });
         let feed = await this.feedRepository.findOne({
-            where: { actor: userId },
-            relations: ['activities'],
+            where: {
+                user_id: userId,
+            },
         });
-        if (!feed) throw new NotFoundException();
-
-        const activity_ids = feed.activity_ids.splice(
-            0,
-            length > 1 ? length : 10,
-        );
+        if (!feed) throw new NotFoundException('User not found');
 
         const activities = await this.activityRepository.find({
-            where: { id: In([...activity_ids]) },
+            order: {
+                time: 'DESC',
+            },
         });
+
+        if (feed.foreign_ids.length == 0)
+            feed.foreign_ids = activities.map(
+                (activity) => activity.foreign_id,
+            );
+
+        const foreign_ids = feed.foreign_ids.splice(0, limit > 1 ? limit : 10);
+
+        feed.seen_foreign_ids.push(...foreign_ids);
 
         await this.feedRepository.save(feed);
 
-        feed.activity_ids = activity_ids;
-        feed.activities = activities;
+        feed.foreign_ids = foreign_ids;
 
         return feed;
     }
 
-    @Auth([RoleType.USER])
+    //@Auth([RoleType.USER])
     async update(userId: string, addToFeedDto: AddToFeedDto) {
-        console.log(userId);
         let feed = await this.feedRepository.findOne({
-            where: { actor: userId },
+            where: { user_id: userId },
         });
         if (!feed) throw new NotFoundException();
-        feed.activity_ids.push(...addToFeedDto.activity_ids);
 
-        const updatedFeed = await this.feedRepository.save(feed);
+        const notSeenIds = addToFeedDto.foreign_ids.filter((id) =>
+            includes(feed?.seen_foreign_ids, id),
+        );
 
-        return updatedFeed;
+        const newArray = notSeenIds.concat(feed.foreign_ids);
+
+        feed.foreign_ids = newArray;
+
+        await this.feedRepository.save(feed);
+
+        return feed;
     }
 
-    @Auth([RoleType.USER])
+    //@Auth([RoleType.USER])
     async remove(userId: string) {
         const feed = await this.feedRepository.findOne({
-            where: { actor: userId },
+            where: { user_id: userId },
         });
 
         if (!feed) throw new NotFoundException();

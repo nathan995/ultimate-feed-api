@@ -6,10 +6,11 @@ import { ImpressionEntity } from 'modules/impression/impression.entity';
 import { EngagementEntity } from 'modules/engagement/engagement.entity';
 import { FeedEntity } from 'modules/feed/feed.entity';
 
-export interface IFeedEntity extends IAbstractEntity<ActivityDto> {
+export interface IActivityEntity extends IAbstractEntity<ActivityDto> {
     actor: string;
     time: Date;
     foreign_id: string;
+    score?: number;
     media?: string[];
     caption?: string;
 }
@@ -18,7 +19,7 @@ export interface IFeedEntity extends IAbstractEntity<ActivityDto> {
 @UseDto(ActivityDto)
 export class ActivityEntity
     extends AbstractEntity<ActivityDto>
-    implements IFeedEntity
+    implements IActivityEntity
 {
     @Column()
     actor: string;
@@ -26,7 +27,8 @@ export class ActivityEntity
     time: Date;
     @Column({ unique: true })
     foreign_id: string;
-
+    @Column({ type: 'float', default: 0.0 })
+    score?: number;
     @Column('text', { array: true })
     media?: string[];
 
@@ -46,7 +48,4 @@ export class ActivityEntity
         { cascade: true },
     )
     engagements?: EngagementEntity[];
-
-    @ManyToMany(() => FeedEntity, (feed: FeedEntity) => feed.activities)
-    feeds: FeedEntity[];
 }

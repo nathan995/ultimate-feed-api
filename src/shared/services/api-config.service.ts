@@ -6,6 +6,7 @@ import { isNil } from 'lodash';
 import { SnakeNamingStrategy } from 'utils/snake-naming.strategy';
 
 import { UserSubscriber } from 'entity-subscribers/user-subscriber';
+import { EngagementSubscriber } from 'entity-subscribers/engagement-subscriber';
 
 @Injectable()
 // eslint-disable-next-line @moneteam/nestjs/injectable-should-be-provided
@@ -100,7 +101,7 @@ export class ApiConfigService {
             username: this.getString('DB_USERNAME'),
             password: this.getString('DB_PASSWORD'),
             database: this.getString('DB_DATABASE'),
-            subscribers: [UserSubscriber],
+            subscribers: [UserSubscriber, EngagementSubscriber],
             migrationsRun: true,
             logging: this.getBoolean('ENABLE_ORM_LOGS'),
             namingStrategy: new SnakeNamingStrategy(),

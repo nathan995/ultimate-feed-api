@@ -11,7 +11,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { FeedService } from './feed.service';
 import { CreateFeedDto } from './dto/create-feed.dto';
-import { UpdateFeedDto } from './dto/update-feed.dto';
 import { AddToFeedDto } from './dto/add-feed.dto';
 
 @ApiTags('feed')
@@ -30,8 +29,8 @@ export class FeedController {
     // }
 
     @Get(':userId')
-    findOne(@Param('userId') userId: string, @Query('length') length: string) {
-        return this.feedService.findOne(userId, +length);
+    findOne(@Param('userId') userId: string, @Query('limit') limit: string) {
+        return this.feedService.findOne(userId, +limit);
     }
 
     @Patch(':userId')

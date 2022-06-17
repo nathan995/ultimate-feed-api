@@ -21,10 +21,6 @@ export class EngagementService {
         return engagement;
     }
 
-    // findAll() {
-    //   return `This action returns all engagement`;
-    // }
-
     // findOne(id: string) {
     //   return `This action returns a #${id} engagement`;
     // }

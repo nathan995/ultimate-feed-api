@@ -3,6 +3,7 @@ import './src/boilerplate.polyfill';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { UserSubscriber } from './src/entity-subscribers/user-subscriber';
+import { EngagementSubscriber } from './src/entity-subscribers/engagement-subscriber';
 import { SnakeNamingStrategy } from './src/utils/snake-naming.strategy';
 
 const configs: TypeOrmModuleOptions & { seeds: string[]; factories: string[] } =
@@ -14,7 +15,7 @@ const configs: TypeOrmModuleOptions & { seeds: string[]; factories: string[] } =
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
         namingStrategy: new SnakeNamingStrategy(),
-        subscribers: [UserSubscriber],
+        subscribers: [UserSubscriber, EngagementSubscriber],
         entities: [
             'src/modules/**/*.entity{.ts,.js}',
             'src/modules/**/*.view-entity{.ts,.js}',

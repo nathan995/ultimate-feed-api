@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import type { IAbstractEntity } from 'common/abstract.entity';
 import { AbstractEntity } from 'common/abstract.entity';
@@ -6,6 +6,7 @@ import { RoleType } from 'constants/index';
 import { UseDto, VirtualColumn } from 'decorators';
 import type { UserDtoOptions } from './dtos/user.dto';
 import { UserDto } from './dtos/user.dto';
+import { ApiKeyEntity } from 'modules/api-key/api-key.entity';
 
 export interface IUserEntity extends IAbstractEntity<UserDto> {
     firstName?: string;
@@ -54,4 +55,9 @@ export class UserEntity
 
     @VirtualColumn()
     fullName?: string;
+
+    @OneToMany(() => ApiKeyEntity, (apiKey: ApiKeyEntity) => apiKey.user, {
+        cascade: true,
+    })
+    apiKeys?: ApiKeyEntity[];
 }

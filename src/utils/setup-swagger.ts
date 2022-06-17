@@ -7,8 +7,7 @@ export function setupSwagger(app: INestApplication): void {
         .setDescription(
             `### REST
 
-Routes is following REST standard (Richardson level 3)
-
+Routes is following REST standard (Richardson level 3) 
 <details><summary>Detailed specification</summary>
 <p>
 

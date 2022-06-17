@@ -10,6 +10,8 @@ export class ActivityDto extends AbstractDto {
     @ApiProperty()
     foreign_id: string;
     @ApiPropertyOptional()
+    score?: number;
+    @ApiPropertyOptional()
     media?: string[];
     @ApiPropertyOptional()
     caption?: string;
