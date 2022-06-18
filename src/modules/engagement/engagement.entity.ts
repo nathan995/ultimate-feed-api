@@ -11,6 +11,7 @@ export interface IEngagementEntity extends IAbstractEntity<EngagementDto> {
     time: Date;
     foreign_id: string;
     activity_id: string;
+    client_id: string;
 }
 
 @Entity({ name: 'engagement' })
@@ -32,7 +33,8 @@ export class EngagementEntity
     activity_id: string;
     @Column()
     foreign_id: string;
-
+    @Column()
+    client_id: string;
     @ManyToOne(
         () => ActivityEntity,
         (activity: ActivityEntity) => activity.impressions,

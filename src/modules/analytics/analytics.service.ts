@@ -15,6 +15,7 @@ import { groupByDateRange } from 'utils/group-by-time';
 import { ActivityEntity } from 'modules/activity/activity.entity';
 import { ImpressionEntity } from 'modules/impression/impression.entity';
 import { EngagementEntity } from 'modules/engagement/engagement.entity';
+import { ContextProvider } from 'providers';
 
 @Injectable()
 export class AnalyticsService {
@@ -29,6 +30,7 @@ export class AnalyticsService {
             this.activityRepository.find({
                 select: ['time'],
                 where: {
+                    client_id: ContextProvider.getAuthUser()?.id,
                     time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
                 },
                 order: {
@@ -38,6 +40,7 @@ export class AnalyticsService {
             this.impressionRepository.find({
                 select: ['time'],
                 where: {
+                    client_id: ContextProvider.getAuthUser()?.id,
                     time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
                 },
                 order: {
@@ -47,6 +50,7 @@ export class AnalyticsService {
             this.engagementRepository.find({
                 select: ['time'],
                 where: {
+                    client_id: ContextProvider.getAuthUser()?.id,
                     time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
                 },
                 order: {

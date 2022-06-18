@@ -9,6 +9,8 @@ export class ActivityDto extends AbstractDto {
     time: Date;
     @ApiProperty()
     foreign_id: string;
+    @ApiProperty()
+    client_id: string;
     @ApiPropertyOptional()
     score?: number;
     @ApiPropertyOptional()
@@ -20,6 +22,7 @@ export class ActivityDto extends AbstractDto {
         super(activity);
         this.actor = activity.actor;
         this.time = activity.time;
+        this.client_id = activity.client_id;
         this.foreign_id = activity.foreign_id;
         this.media = activity.media;
         this.caption = activity.caption;

@@ -11,8 +11,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { RoleType } from 'constants/index';
 import { Auth } from 'decorators';
-import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
-import { ApiKeyService } from 'modules/api-key/api-key.service';
 import { ActivityService } from './activity.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
@@ -20,28 +18,22 @@ import { UpdateActivityDto } from './dto/update-activity.dto';
 @ApiTags('activity')
 @Controller('activity')
 export class ActivityController {
-    constructor(
-        private readonly activityService: ActivityService,
-        private readonly apiKeyService: ApiKeyService,
-    ) {}
+    constructor(private readonly activityService: ActivityService) {}
 
-    // @Auth([RoleType.USER])
+    //@Auth([RoleType.USER])
     @Post()
-    async create(
+    create(
         @Headers('apiKey') apiKey: string,
         @Body() createActivityDto: CreateActivityDto,
     ) {
-        if (await this.apiKeyService.isApiKeyValid(apiKey))
-            throw new ApiKeyInvalidException();
-
-        return this.activityService.create(createActivityDto);
+        return this.activityService.create(apiKey, createActivityDto);
     }
 
-    // @Auth([RoleType.USER])
-    @Get()
-    findAll() {
-        return this.activityService.findAll();
-    }
+    //@Auth([RoleType.USER])
+    // @Get()
+    // findAll() {
+    //     return this.activityService.findAll();
+    // }
 
     // @Get(':id')
     // findOne(@Param('id') id: string) {
@@ -51,15 +43,16 @@ export class ActivityController {
     //@Auth([RoleType.USER])
     @Patch(':id')
     update(
+        @Headers('apiKey') apiKey: string,
         @Param('id') id: string,
         @Body() updateActivityDto: UpdateActivityDto,
     ) {
-        return this.activityService.update(id, updateActivityDto);
+        return this.activityService.update(apiKey, id, updateActivityDto);
     }
 
     //@Auth([RoleType.USER])
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.activityService.remove(id);
+    remove(@Headers('apiKey') apiKey: string, @Param('id') id: string) {
+        return this.activityService.remove(apiKey, id);
     }
 }

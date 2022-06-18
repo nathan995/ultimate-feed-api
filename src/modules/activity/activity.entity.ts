@@ -10,6 +10,7 @@ export interface IActivityEntity extends IAbstractEntity<ActivityDto> {
     actor: string;
     time: Date;
     foreign_id: string;
+    client_id: string;
     score?: number;
     media?: string[];
     caption?: string;
@@ -25,6 +26,8 @@ export class ActivityEntity
     actor: string;
     @Column()
     time: Date;
+    @Column()
+    client_id: string;
     @Column({ unique: true })
     foreign_id: string;
     @Column({ type: 'float', default: 0.0 })

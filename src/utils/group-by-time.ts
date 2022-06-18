@@ -27,15 +27,3 @@ export function groupByDateRange<T>({
     });
     return count;
 }
-
-// by6Hour = (item) => {
-//     const m = moment(item.time);
-//     return (
-//         day(item) +
-//         ' ' +
-//         ['first', 'second', 'third', 'fourth'][
-//             Number(m.format('k')) % 6
-//         ] +
-//         ' 6 hours'
-//     );
-// },

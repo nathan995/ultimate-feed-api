@@ -14,26 +14,19 @@ import { CreateImpressionDto } from './dto/create-impression.dto';
 import { UpdateImpressionDto } from './dto/update-impression.dto';
 import { Auth } from 'decorators';
 import { RoleType } from 'constants/index';
-import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
-import { ApiKeyService } from 'modules/api-key/api-key.service';
 
 @ApiTags('impression')
 @Controller('impression')
 export class ImpressionController {
-    constructor(
-        private readonly apiKeyService: ApiKeyService,
-        private readonly impressionService: ImpressionService,
-    ) {}
+    constructor(private readonly impressionService: ImpressionService) {}
 
     //@Auth([RoleType.USER])
     @Post()
-    async create(
+    create(
         @Headers('apiKey') apiKey: string,
         @Body() createImpressionDto: CreateImpressionDto,
     ) {
-        if (await this.apiKeyService.isApiKeyValid(apiKey))
-            throw new ApiKeyInvalidException();
-        return this.impressionService.create(createImpressionDto);
+        return this.impressionService.create(apiKey, createImpressionDto);
     }
 
     // @Get()
@@ -56,7 +49,7 @@ export class ImpressionController {
 
     //@Auth([RoleType.USER])
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.impressionService.remove(id);
+    remove(@Headers('apiKey') apiKey: string, @Param('id') id: string) {
+        return this.impressionService.remove(apiKey, id);
     }
 }

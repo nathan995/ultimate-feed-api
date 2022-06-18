@@ -9,72 +9,79 @@ import { CsvParser } from 'nest-csv-parser';
 import fs from 'fs';
 import { ActivityDto } from './dto/activity.dto';
 import { ContextProvider } from 'providers';
+import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
+import { ApiKeyService } from 'modules/api-key/api-key.service';
 
-class Entity {
-    id: string;
-    actor: string;
-    time: Date;
-    foreign_id: string;
-    media: string[];
-    caption: string;
-}
 @Injectable()
 export class ActivityService {
+    user = ContextProvider.getAuthUser();
     constructor(
         private activityRepository: ActivityRepository,
         private readonly csvParser: CsvParser,
+        private readonly apiKeyService: ApiKeyService,
     ) {}
 
     @Transactional()
     async create(
+        apiKey: string,
         createActivityDto: CreateActivityDto,
     ): Promise<ActivityEntity> {
-        const activity = this.activityRepository.create(createActivityDto);
+        const api = await this.apiKeyService.isApiKeyValid(apiKey);
+        if (!api) throw new ApiKeyInvalidException();
 
+        createActivityDto.client_id = api.client_id;
+
+        const activity = this.activityRepository.create(createActivityDto);
         await this.activityRepository.save(activity);
 
-        // const broker = await JsonMessageBroker.getInstance();
+        const broker = await JsonMessageBroker.getInstance();
 
-        // await broker.send('activity', createActivityDto);
+        await broker.send('activity', createActivityDto);
 
         return activity;
     }
 
-    async findAll() {
-        const user = ContextProvider.getAuthUser();
-        console.log(user);
-        const stream = fs.createReadStream(
-            'C:\\Users\\Nathan\\Desktop' + '/Book2.csv',
-        );
-        const activities = await this.csvParser.parse(
-            stream,
-            CreateActivityDto,
-            undefined,
-            undefined,
-            { strict: true, separator: ',' },
-        );
-        activities.list.forEach(async (activity: CreateActivityDto) => {
-            activity.media = activity.media
-                ?.toString()
-                .slice(2, activity.media.length - 3)
-                .split(',');
+    // async findAll() {
+    //     console.log(this.user);
+    //     const stream = fs.createReadStream(
+    //         'C:\\Users\\Nathan\\Desktop' + '/Book2.csv',
+    //     );
+    //     const activities = await this.csvParser.parse(
+    //         stream,
+    //         CreateActivityDto,
+    //         undefined,
+    //         undefined,
+    //         { strict: true, separator: ',' },
+    //     );
+    //     activities.list.forEach(async (activity: CreateActivityDto) => {
+    //         (activity.client_id = '31f6a15e-4f34-4409-9ef7-d57134fef509'),
+    //             (activity.media = activity.media
+    //                 ?.toString()
+    //                 .slice(2, activity.media.length - 3)
+    //                 .split(','));
 
-            const _activity = this.activityRepository.create(activity);
+    //         const _activity = this.activityRepository.create(activity);
 
-            await this.activityRepository.save(_activity);
-            console.log('saved');
-        });
+    //         await this.activityRepository.save(_activity);
+    //         console.log('saved');
+    //     });
 
-        return `This action returns all activity`;
-    }
+    //     return `This action returns all activity`;
+    // }
 
     // findOne(id: string) {
     //   return `This action returns a #${id} activity`;
     // }
 
-    async update(id: string, updateActivityDto: UpdateActivityDto) {
+    async update(
+        apiKey: string,
+        id: string,
+        updateActivityDto: UpdateActivityDto,
+    ) {
+        const api = await this.apiKeyService.isApiKeyValid(apiKey);
+        if (!api) throw new ApiKeyInvalidException();
         const activity = await this.activityRepository.findOne({
-            where: { id: id },
+            where: { id: id, client_id: api.client_id },
         });
 
         if (!activity) throw new NotFoundException();
@@ -87,9 +94,12 @@ export class ActivityService {
         return savedActivity;
     }
 
-    async remove(id: string) {
+    async remove(apiKey: string, id: string) {
+        const api = await this.apiKeyService.isApiKeyValid(apiKey);
+        if (!api) throw new ApiKeyInvalidException();
+
         const activity = await this.activityRepository.findOne({
-            where: { foreign_id: id },
+            where: { foreign_id: id, client_id: api.client_id },
         });
 
         if (!activity) throw new NotFoundException();

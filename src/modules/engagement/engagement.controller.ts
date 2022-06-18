@@ -14,26 +14,19 @@ import { CreateEngagementDto } from './dto/create-engagement.dto';
 import { UpdateEngagementDto } from './dto/update-engagement.dto';
 import { Auth } from 'decorators';
 import { RoleType } from 'constants/index';
-import { ApiKeyService } from 'modules/api-key/api-key.service';
-import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
 
 @ApiTags('engagement')
 @Controller('engagement')
 export class EngagementController {
-    constructor(
-        private readonly engagementService: EngagementService,
-        private readonly apiKeyService: ApiKeyService,
-    ) {}
+    constructor(private readonly engagementService: EngagementService) {}
 
     //@Auth([RoleType.USER])
     @Post()
-    async create(
+    create(
         @Headers('apiKey') apiKey: string,
         @Body() createEngagementDto: CreateEngagementDto,
     ) {
-        if (await this.apiKeyService.isApiKeyValid(apiKey))
-            throw new ApiKeyInvalidException();
-        return this.engagementService.create(createEngagementDto);
+        return this.engagementService.create(apiKey, createEngagementDto);
     }
 
     // @Get(':id')
@@ -51,7 +44,7 @@ export class EngagementController {
 
     //@Auth([RoleType.USER])
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.engagementService.remove(id);
+    remove(@Headers('apiKey') apiKey: string, @Param('id') id: string) {
+        return this.engagementService.remove(apiKey, id);
     }
 }

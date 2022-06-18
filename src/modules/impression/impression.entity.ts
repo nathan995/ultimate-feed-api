@@ -8,6 +8,7 @@ export interface IImpressionEntity extends IAbstractEntity<ImpressionDto> {
     actor: string;
     time: Date;
     activity_id: string;
+    client_id: string;
 }
 
 @Entity({ name: 'impression' })
@@ -20,6 +21,8 @@ export class ImpressionEntity
     actor: string;
     @Column()
     activity_id: string;
+    @Column()
+    client_id: string;
     @Column()
     time: Date;
 

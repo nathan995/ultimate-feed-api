@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
     IsDateString,
     IsNotEmpty,
@@ -11,6 +11,9 @@ import {
 import { Trim } from 'decorators/transform.decorators';
 
 export class CreateEngagementDto {
+    @ApiHideProperty()
+    client_id?: string;
+
     @ApiProperty()
     @IsString()
     @IsNotEmpty()

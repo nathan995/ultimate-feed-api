@@ -32,6 +32,6 @@ export class EngagementSubscriber
             await activityRepo.save(updatedActivity);
         }
 
-        console.log('done updating');
+        console.log('done updating activity');
     }
 }

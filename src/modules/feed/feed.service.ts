@@ -10,89 +10,125 @@ import { In } from 'typeorm';
 import { Auth } from 'decorators';
 import { RoleType } from 'constants/index';
 import { includes } from 'lodash';
+import { Ack } from 'rabbitMQ/message-broker';
+import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
+import { ApiKeyService } from 'modules/api-key/api-key.service';
+import { JsonMessageBroker } from 'rabbitMQ';
 
 @Injectable()
 export class FeedService {
     constructor(
         private feedRepository: FeedRepository,
         private activityRepository: ActivityRepository,
+        private apiKeyService: ApiKeyService,
     ) {}
 
     //@Auth([RoleType.USER])
-    @Transactional()
-    async create(createFeedDto: CreateFeedDto): Promise<FeedEntity> {
-        const feed = this.feedRepository.create(createFeedDto);
+    // @Transactional()
+    // async create(
+    //     apiKey: string,
+    //     createFeedDto: CreateFeedDto,
+    // ): Promise<FeedEntity> {
+    //     const api = await this.apiKeyService.isApiKeyValid(apiKey);
+    //     if (!api) throw new ApiKeyInvalidException();
 
-        await this.feedRepository.save(feed);
+    //     createFeedDto.client_id == api.client_id;
 
-        return feed;
-    }
+    //     const feed = this.feedRepository.create(createFeedDto);
 
-    // findAll() {
-    //     const feeds = this.feedRepository.find({
-    //         relations: ['activity'],
-    //     });
-    //     return feeds;
+    //     await this.feedRepository.save(feed);
+
+    //     return feed;
     // }
 
     //@Auth([RoleType.USER])
-    async findOne(userId: string, limit: number) {
-        // let feed = await this.feedRepository.findOne({
-        //     where: { user_id: userId },
-        // });
+    async findOne(apiKey: string, userId: string, limit: number) {
+        const api = await this.apiKeyService.isApiKeyValid(apiKey);
+        if (!api) throw new ApiKeyInvalidException();
+
+        const broker = await JsonMessageBroker.getInstance();
+
+        const recommendations: string[] =
+            await this.subscribeToFeedResponseAsync(broker, userId);
+        console.log(recommendations);
         let feed = await this.feedRepository.findOne({
             where: {
                 user_id: userId,
-            },
-        });
-        if (!feed) throw new NotFoundException('User not found');
-
-        const activities = await this.activityRepository.find({
-            order: {
-                time: 'DESC',
+                client_id: api.client_id,
             },
         });
 
-        if (feed.foreign_ids.length == 0)
-            feed.foreign_ids = activities.map(
-                (activity) => activity.foreign_id,
+        // if (!feed) {
+        //     feed = this.feedRepository.create({
+        //         user_id: userId,
+        //     });
+        //     feed = await this.feedRepository.save(feed);
+        // }
+
+        // const notSeenIds = recommendations.filter((id) =>
+        //     includes(feed?.seen_foreign_ids, id),
+        // );
+
+        // const newArray = notSeenIds.concat(feed.foreign_ids);
+
+        // feed.foreign_ids = newArray;
+
+        // const foreign_ids = feed.foreign_ids.splice(0, limit > 1 ? limit : 10);
+
+        // feed.seen_foreign_ids.push(...foreign_ids);
+
+        // await this.feedRepository.save(feed);
+
+        // feed.foreign_ids = foreign_ids;
+
+        // return feed;
+    }
+
+    subscribeToFeedResponseAsync(broker: any, userId: string) {
+        return new Promise<any>(async function (resolve, reject) {
+            await broker.subscribe(
+                'feed_response',
+                (message: any, ack: Ack) => {
+                    if (userId == message.userId) {
+                        ack();
+                        resolve(message.data);
+                    } else {
+                        console.log('Invalid correlationId');
+                    }
+                },
             );
 
-        const foreign_ids = feed.foreign_ids.splice(0, limit > 1 ? limit : 10);
-
-        feed.seen_foreign_ids.push(...foreign_ids);
-
-        await this.feedRepository.save(feed);
-
-        feed.foreign_ids = foreign_ids;
-
-        return feed;
-    }
-
-    //@Auth([RoleType.USER])
-    async update(userId: string, addToFeedDto: AddToFeedDto) {
-        let feed = await this.feedRepository.findOne({
-            where: { user_id: userId },
+            broker.send('feed_request', { userId });
         });
-        if (!feed) throw new NotFoundException();
-
-        const notSeenIds = addToFeedDto.foreign_ids.filter((id) =>
-            includes(feed?.seen_foreign_ids, id),
-        );
-
-        const newArray = notSeenIds.concat(feed.foreign_ids);
-
-        feed.foreign_ids = newArray;
-
-        await this.feedRepository.save(feed);
-
-        return feed;
     }
 
     //@Auth([RoleType.USER])
-    async remove(userId: string) {
+    // async update(userId: string, addToFeedDto: AddToFeedDto) {
+
+    //     let feed = await this.feedRepository.findOne({
+    //         where: { user_id: userId },
+    //     });
+    //     if (!feed) throw new NotFoundException();
+
+    //     const notSeenIds = addToFeedDto.foreign_ids.filter((id) =>
+    //         includes(feed?.seen_foreign_ids, id),
+    //     );
+
+    //     const newArray = notSeenIds.concat(feed.foreign_ids);
+
+    //     feed.foreign_ids = newArray;
+
+    //     await this.feedRepository.save(feed);
+
+    //     return feed;
+    // }
+
+    //@Auth([RoleType.USER])
+    async remove(apiKey: string, userId: string) {
+        const api = await this.apiKeyService.isApiKeyValid(apiKey);
+        if (!api) throw new ApiKeyInvalidException();
         const feed = await this.feedRepository.findOne({
-            where: { user_id: userId },
+            where: { user_id: userId, client_id: api.client_id },
         });
 
         if (!feed) throw new NotFoundException();

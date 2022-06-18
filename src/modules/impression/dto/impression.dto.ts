@@ -9,11 +9,14 @@ export class ImpressionDto extends AbstractDto {
     time: Date;
     @ApiProperty()
     activity_id: string;
+    @ApiProperty()
+    client_id: string;
 
     constructor(impression: ImpressionEntity) {
         super(impression);
         this.actor = impression.actor;
         this.time = impression.time;
         this.activity_id = impression.activity_id;
+        this.client_id = impression.client_id;
     }
 }

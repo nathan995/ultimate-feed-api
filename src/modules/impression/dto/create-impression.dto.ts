@@ -1,9 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 
 import { Trim } from 'decorators/transform.decorators';
 
 export class CreateImpressionDto {
+    @ApiHideProperty()
+    client_id?: string;
+
     @ApiProperty()
     @IsString()
     @IsNotEmpty()

@@ -33,7 +33,16 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     });
 
     app.enable('trust proxy');
-    app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                },
+            },
+            frameguard: false,
+        }),
+    );
     app.setGlobalPrefix('/api');
 
     app.use(

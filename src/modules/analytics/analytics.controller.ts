@@ -18,7 +18,7 @@ import { GetAnalyticsDto } from './dto/get-analytics.dto';
 @Controller('analytics')
 export class AnalyticsController {
     constructor(private readonly analyticsService: AnalyticsService) {}
-    //@Auth([RoleType.USER])
+    @Auth([RoleType.USER])
     @Post()
     findAll(@Body() getAnalyticsDto: GetAnalyticsDto) {
         console.log(getAnalyticsDto.from, 'from');

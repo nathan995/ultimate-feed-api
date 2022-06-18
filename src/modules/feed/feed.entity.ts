@@ -13,6 +13,7 @@ import { ActivityEntity } from 'modules/activity/activity.entity';
 
 export interface IFeedEntity extends IAbstractEntity<FeedDto> {
     user_id: string;
+    client_id: string;
     foreign_ids: string[];
     seen_foreign_ids: string[];
 }
@@ -22,7 +23,8 @@ export interface IFeedEntity extends IAbstractEntity<FeedDto> {
 export class FeedEntity extends AbstractEntity<FeedDto> implements IFeedEntity {
     @Column()
     user_id: string;
-
+    @Column()
+    client_id: string;
     @Column('text', { array: true, default: [] })
     foreign_ids: string[];
 

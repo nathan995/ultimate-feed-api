@@ -14,6 +14,8 @@ export class EngagementDto extends AbstractDto {
     @ApiProperty()
     activity_id: string;
     @ApiProperty()
+    client_id: string;
+    @ApiProperty()
     foreign_id: string;
 
     constructor(engagement: EngagementEntity) {
@@ -23,6 +25,7 @@ export class EngagementDto extends AbstractDto {
         this.score = engagement.score;
         this.time = engagement.time;
         this.foreign_id = engagement.foreign_id;
+        this.client_id = engagement.client_id;
         this.activity_id = engagement.activity_id;
     }
 }

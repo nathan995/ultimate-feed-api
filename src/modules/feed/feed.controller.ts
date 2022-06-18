@@ -7,6 +7,7 @@ import {
     Param,
     Delete,
     Query,
+    Headers,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FeedService } from './feed.service';
@@ -18,10 +19,13 @@ import { AddToFeedDto } from './dto/add-feed.dto';
 export class FeedController {
     constructor(private readonly feedService: FeedService) {}
 
-    @Post()
-    create(@Body() createFeedDto: CreateFeedDto) {
-        return this.feedService.create(createFeedDto);
-    }
+    // @Post()
+    // create(
+    //     @Headers('apiKey') apiKey: string,
+    //     @Body() createFeedDto: CreateFeedDto,
+    // ) {
+    //     return this.feedService.create(apiKey, createFeedDto);
+    // }
 
     // @Get()
     // findAll() {
@@ -29,20 +33,24 @@ export class FeedController {
     // }
 
     @Get(':userId')
-    findOne(@Param('userId') userId: string, @Query('limit') limit: string) {
-        return this.feedService.findOne(userId, +limit);
+    findOne(
+        @Headers('apiKey') apiKey: string,
+        @Param('userId') userId: string,
+        @Query('limit') limit: string,
+    ) {
+        return this.feedService.findOne(apiKey, userId, +limit);
     }
 
-    @Patch(':userId')
-    update(
-        @Param('userId') userId: string,
-        @Body() addToFeedDto: AddToFeedDto,
-    ) {
-        return this.feedService.update(userId, addToFeedDto);
-    }
+    // @Patch(':userId')
+    // update(
+    //     @Param('userId') userId: string,
+    //     @Body() addToFeedDto: AddToFeedDto,
+    // ) {
+    //     return this.feedService.update(userId, addToFeedDto);
+    // }
 
     @Delete(':userId')
-    remove(@Param('userId') id: string) {
-        return this.feedService.remove(id);
+    remove(@Headers('apiKey') apiKey: string, @Param('userId') id: string) {
+        return this.feedService.remove(apiKey, id);
     }
 }
