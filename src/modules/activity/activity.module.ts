@@ -6,8 +6,12 @@ import { ActivityRepository } from './activity.repository';
 import { CsvParser } from 'nest-csv-parser';
 import { ApiKeyRepository } from 'modules/api-key/api-key.repository';
 import { ApiKeyModule } from 'modules/api-key/api-key.module';
+import { EngagementRepository } from 'modules/engagement/engagement.repository';
 @Module({
-    imports: [TypeOrmModule.forFeature([ActivityRepository]), ApiKeyModule],
+    imports: [
+        TypeOrmModule.forFeature([ActivityRepository, EngagementRepository]),
+        ApiKeyModule,
+    ],
     controllers: [ActivityController],
     providers: [ActivityService, CsvParser],
     exports: [ActivityService],

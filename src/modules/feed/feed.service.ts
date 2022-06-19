@@ -58,30 +58,35 @@ export class FeedService {
             },
         });
 
-        // if (!feed) {
-        //     feed = this.feedRepository.create({
-        //         user_id: userId,
-        //     });
-        //     feed = await this.feedRepository.save(feed);
-        // }
+        if (!feed) {
+            feed = this.feedRepository.create({
+                user_id: userId,
+                client_id: api.client_id,
+            });
+            feed = await this.feedRepository.save(feed);
+        }
 
-        // const notSeenIds = recommendations.filter((id) =>
-        //     includes(feed?.seen_foreign_ids, id),
-        // );
+        let notSeenIds = recommendations.filter(
+            (id) => !includes(feed?.seen_foreign_ids, id),
+        );
+        console.log('not seen' + notSeenIds.length);
+        const activities = await this.activityRepository.find({
+            where: {
+                foreign_id: In(notSeenIds),
+            },
+            order: {
+                createdAt: 'DESC',
+            },
+            take: limit,
+        });
+        console.log(activities.length);
+        const seenIds = activities.map((activity) => activity.foreign_id);
+        console.log('seenIds', seenIds);
 
-        // const newArray = notSeenIds.concat(feed.foreign_ids);
-
-        // feed.foreign_ids = newArray;
-
-        // const foreign_ids = feed.foreign_ids.splice(0, limit > 1 ? limit : 10);
-
-        // feed.seen_foreign_ids.push(...foreign_ids);
-
-        // await this.feedRepository.save(feed);
-
-        // feed.foreign_ids = foreign_ids;
-
-        // return feed;
+        feed.seen_foreign_ids = [...feed.seen_foreign_ids, ...seenIds];
+        feed = await this.feedRepository.save(feed);
+        feed.foreign_ids = seenIds;
+        return feed;
     }
 
     subscribeToFeedResponseAsync(broker: any, userId: string) {

@@ -16,22 +16,20 @@ export class EngagementSubscriber
         return EngagementEntity;
     }
 
-    async afterInsert(event: InsertEvent<EngagementEntity>): Promise<void> {
-        // eslint-disable-next-line no-console
-        console.log('after engagement insert');
-        const activityRepo =
-            event.manager.connection.getRepository(ActivityEntity);
-
-        const activity = await activityRepo.findOne({
-            where: { foreign_id: event.entity.activity_id },
-        });
-        if (activity && activity.score != null) {
-            const updatedActivity = Object.assign(activity, {
-                score: activity.score + event.entity.score,
-            });
-            await activityRepo.save(updatedActivity);
-        }
-
-        console.log('done updating activity');
-    }
+    // async beforeInsert(event: InsertEvent<EngagementEntity>): Promise<void> {
+    //     // eslint-disable-next-line no-console
+    //     console.log('before engagement insert');
+    //     const activityRepo =
+    //         event.manager.connection.getRepository(ActivityEntity);
+    //     const activity = await activityRepo.findOne({
+    //         where: { foreign_id: event.entity.activity_id },
+    //     });
+    //     if (activity && activity.score != null) {
+    //         const updatedActivity = Object.assign(activity, {
+    //             score: activity.score + event.entity.score,
+    //         });
+    //         await activityRepo.save(updatedActivity);
+    //     }
+    //     console.log('done updating activity');
+    // }
 }

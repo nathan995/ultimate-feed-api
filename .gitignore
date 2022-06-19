@@ -1,3 +1,4 @@
+src/database/init/
 # Node artifact files
 node_modules/
 dist/

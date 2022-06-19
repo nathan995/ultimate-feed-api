@@ -24,13 +24,13 @@ export class CreateEngagementDto {
     @IsString()
     @IsNotEmpty()
     @Trim()
-    readonly verb: string;
+    verb: string;
 
     @ApiProperty()
     @IsNumber({ maxDecimalPlaces: 5 })
     @Min(-1)
     @Max(1)
-    readonly score: number;
+    score?: number;
 
     @ApiProperty()
     @IsDateString()

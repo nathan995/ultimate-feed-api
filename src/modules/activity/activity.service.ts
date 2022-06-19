@@ -11,12 +11,14 @@ import { ActivityDto } from './dto/activity.dto';
 import { ContextProvider } from 'providers';
 import { ApiKeyInvalidException } from 'exceptions/api-key-invaild.exception';
 import { ApiKeyService } from 'modules/api-key/api-key.service';
+import { CreateEngagementDto } from 'modules/engagement/dto/create-engagement.dto';
+import { EngagementRepository } from 'modules/engagement/engagement.repository';
 
 @Injectable()
 export class ActivityService {
-    user = ContextProvider.getAuthUser();
     constructor(
         private activityRepository: ActivityRepository,
+        private engagementRepository: EngagementRepository,
         private readonly csvParser: CsvParser,
         private readonly apiKeyService: ApiKeyService,
     ) {}
@@ -41,33 +43,91 @@ export class ActivityService {
         return activity;
     }
 
-    // async findAll() {
-    //     console.log(this.user);
-    //     const stream = fs.createReadStream(
-    //         'C:\\Users\\Nathan\\Desktop' + '/Book2.csv',
-    //     );
-    //     const activities = await this.csvParser.parse(
-    //         stream,
-    //         CreateActivityDto,
-    //         undefined,
-    //         undefined,
-    //         { strict: true, separator: ',' },
-    //     );
-    //     activities.list.forEach(async (activity: CreateActivityDto) => {
-    //         (activity.client_id = '31f6a15e-4f34-4409-9ef7-d57134fef509'),
-    //             (activity.media = activity.media
-    //                 ?.toString()
-    //                 .slice(2, activity.media.length - 3)
-    //                 .split(','));
+    async dumpActivities(clientId: string) {
+        const stream = fs.createReadStream(
+            __dirname + '/../../../src/database/init/vibes.csv',
+        );
+        const activities = await this.csvParser.parse(
+            stream,
+            CreateActivityDto,
+            undefined,
+            undefined,
+            { strict: true, separator: ',' },
+        );
+        activities.list.forEach(async (activity: CreateActivityDto) => {
+            try {
+                (activity.client_id = clientId),
+                    (activity.media = activity.media
+                        ?.toString()
+                        .slice(2, activity.media.length - 3)
+                        .split(','));
 
-    //         const _activity = this.activityRepository.create(activity);
+                const _activity = this.activityRepository.create(activity);
 
-    //         await this.activityRepository.save(_activity);
-    //         console.log('saved');
-    //     });
+                await this.activityRepository.save(_activity);
+            } catch (error) {
+                console.log(error);
+            }
+        });
 
-    //     return `This action returns all activity`;
-    // }
+        return `This action returns initiates database`;
+    }
+    async dumpLikes(clientId: string) {
+        const likeStream = fs.createReadStream(
+            __dirname + '/../../../src/database/init/likes.csv',
+        );
+        const likes = await this.csvParser.parse(
+            likeStream,
+            CreateEngagementDto,
+            undefined,
+            undefined,
+            { strict: true, separator: ',' },
+        );
+        likes.list.forEach(async (engagement: CreateEngagementDto) => {
+            try {
+                (engagement.client_id = clientId),
+                    (engagement.verb = 'like'),
+                    (engagement.score = 0.2);
+
+                const _engagement =
+                    this.engagementRepository.create(engagement);
+
+                await this.engagementRepository.save(_engagement);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+
+        return `This action returns initiates database`;
+    }
+    async dumpComments(clientId: string) {
+        const commentStream = fs.createReadStream(
+            __dirname + '/../../../src/database/init/comments.csv',
+        );
+        const comments = await this.csvParser.parse(
+            commentStream,
+            CreateEngagementDto,
+            undefined,
+            undefined,
+            { strict: true, separator: ',' },
+        );
+        console.log(comments.list);
+        comments.list.forEach(async (engagement: CreateEngagementDto) => {
+            try {
+                (engagement.client_id = clientId),
+                    (engagement.score = 0.1),
+                    (engagement.verb = 'comment');
+                const _engagement =
+                    this.engagementRepository.create(engagement);
+
+                await this.engagementRepository.save(_engagement);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+
+        return `This action returns initiates database`;
+    }
 
     // findOne(id: string) {
     //   return `This action returns a #${id} activity`;

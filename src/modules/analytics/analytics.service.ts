@@ -26,38 +26,61 @@ export class AnalyticsService {
     ) {}
 
     async findAll(getAnalyticsDto: GetAnalyticsDto) {
-        const [activities, impressions, engagements] = await Promise.all([
-            this.activityRepository.find({
-                select: ['time'],
-                where: {
-                    client_id: ContextProvider.getAuthUser()?.id,
-                    time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
-                },
-                order: {
-                    time: 'ASC',
-                },
-            }),
-            this.impressionRepository.find({
-                select: ['time'],
-                where: {
-                    client_id: ContextProvider.getAuthUser()?.id,
-                    time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
-                },
-                order: {
-                    time: 'ASC',
-                },
-            }),
-            this.engagementRepository.find({
-                select: ['time'],
-                where: {
-                    client_id: ContextProvider.getAuthUser()?.id,
-                    time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
-                },
-                order: {
-                    time: 'ASC',
-                },
-            }),
-        ]);
+        const [activities, impressions, engagements, likes, comments] =
+            await Promise.all([
+                this.activityRepository.find({
+                    select: ['time'],
+                    where: {
+                        client_id: ContextProvider.getAuthUser()?.id,
+                        time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
+                    },
+                    order: {
+                        time: 'ASC',
+                    },
+                }),
+                this.impressionRepository.find({
+                    select: ['time'],
+                    where: {
+                        client_id: ContextProvider.getAuthUser()?.id,
+                        time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
+                    },
+                    order: {
+                        time: 'ASC',
+                    },
+                }),
+                this.engagementRepository.find({
+                    select: ['time'],
+                    where: {
+                        client_id: ContextProvider.getAuthUser()?.id,
+                        time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
+                    },
+                    order: {
+                        time: 'ASC',
+                    },
+                }),
+                this.engagementRepository.find({
+                    select: ['time'],
+                    where: {
+                        score: 0.2,
+                        client_id: ContextProvider.getAuthUser()?.id,
+                        time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
+                    },
+                    order: {
+                        time: 'ASC',
+                    },
+                }),
+                this.engagementRepository.find({
+                    select: ['time'],
+                    where: {
+                        score: 0.1,
+                        client_id: ContextProvider.getAuthUser()?.id,
+                        time: Between(getAnalyticsDto.from, getAnalyticsDto.to),
+                    },
+                    order: {
+                        time: 'ASC',
+                    },
+                }),
+            ]);
 
         const dateGroup = getDateGroup({
             from: getAnalyticsDto.from,
@@ -76,12 +99,21 @@ export class AnalyticsService {
             list: impressions,
             dateGroup,
         });
-
+        const groupedLikes = groupByDateRange<ImpressionEntity>({
+            list: likes,
+            dateGroup,
+        });
+        const groupedComments = groupByDateRange<ImpressionEntity>({
+            list: comments,
+            dateGroup,
+        });
         return {
             chart: dateGroup,
             activities: groupedActivities,
             impressions: groupedImpressions,
             engagements: groupedEngagements,
+            likes: groupedLikes,
+            comments: groupedComments,
         };
     }
 }

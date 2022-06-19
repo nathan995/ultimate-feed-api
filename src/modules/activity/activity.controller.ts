@@ -7,6 +7,7 @@ import {
     Param,
     Delete,
     Headers,
+    Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RoleType } from 'constants/index';
@@ -30,11 +31,18 @@ export class ActivityController {
     }
 
     //@Auth([RoleType.USER])
-    // @Get()
-    // findAll() {
-    //     return this.activityService.findAll();
+    // @Get('activity/clientId')
+    // dumpActivities(@Query('clientId') id: string) {
+    //     return this.activityService.dumpActivities(id);
     // }
-
+    // @Get('like/clientId')
+    // dumpLikes(@Query('clientId') id: string) {
+    //     return this.activityService.dumpLikes(id);
+    // }
+    // @Get('comment/clientId')
+    // dumpComments(@Query('clientId') id: string) {
+    //     return this.activityService.dumpComments(id);
+    // }
     // @Get(':id')
     // findOne(@Param('id') id: string) {
     //     return this.activityService.findOne(+id);
